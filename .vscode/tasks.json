@@ -1,0 +1,67 @@
+{
+    "version": "2.0.0",
+    "inputs": [
+        {
+            "id": "espHost",
+            "type": "promptString",
+            "description": "ESP32 hostname or IP (e.g. esp32.local or 192.168.0.180)",
+            "default": "esp32.local"
+        }
+    ],
+    "tasks": [
+        {
+            "label": "ESP-IDF: Build & Wireless OTA Upload",
+            "type": "shell",
+            "group": { "kind": "build", "isDefault": true },
+            "problemMatcher": [],
+
+            "command": "if [ -f \"$HOME/.espressif/tools/activate_idf_v6.0.2.sh\" ]; then . \"$HOME/.espressif/tools/activate_idf_v6.0.2.sh\"; elif [ -f \"$HOME/esp/esp-idf/export.sh\" ]; then . \"$HOME/esp/esp-idf/export.sh\"; else echo 'ESP-IDF activation script not found'; exit 1; fi; idf.py build && curl -f --max-time 180 -H 'Expect:' -X POST --data-binary @build/wifi_ota_monitor.bin \"http://${input:espHost}/update\"",
+
+            "windows": {
+                "command": ". 'C:\\Espressif\\tools\\Microsoft.v6.0.2.PowerShell_profile.ps1'; idf.py build; if ($LASTEXITCODE -eq 0) { curl.exe -f --max-time 180 -H 'Expect:' -X POST --data-binary '@build/wifi_ota_monitor.bin' \"http://${input:espHost}/update\" } else { exit 1 }",
+                "options": {
+                    "shell": {
+                        "executable": "powershell.exe",
+                        "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command"]
+                    }
+                }
+            }
+        },
+        {
+            "label": "ESP-IDF: Wireless OTA Upload Only",
+            "type": "shell",
+            "problemMatcher": [],
+
+            "command": "curl -f --max-time 180 -H 'Expect:' -X POST --data-binary @build/wifi_ota_monitor.bin \"http://${input:espHost}/update\"",
+
+            "windows": {
+                "command": "curl.exe -f --max-time 180 -H 'Expect:' -X POST --data-binary '@build/wifi_ota_monitor.bin' \"http://${input:espHost}/update\"",
+                "options": {
+                    "shell": {
+                        "executable": "powershell.exe",
+                        "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command"]
+                    }
+                }
+            }
+        },
+        {
+            "label": "ESP-IDF: Wireless Serial Monitor",
+            "type": "shell",
+            "isBackground": true,
+            "presentation": { "panel": "dedicated" },
+            "problemMatcher": [],
+
+            "command": "while true; do nc \"${input:espHost}\" 3333; echo 'Waiting for device...'; sleep 2; done",
+
+            "windows": {
+                "command": "while ($true) { try { $c = New-Object System.Net.Sockets.TcpClient; $c.Connect('${input:espHost}', 3333); $r = New-Object System.IO.StreamReader($c.GetStream()); while (($l = $r.ReadLine()) -ne $null) { Write-Host $l } } catch { Write-Host \"Waiting for device... $($_.Exception.Message)\" } finally { if ($c) { $c.Close() } }; Start-Sleep -Seconds 2 }",
+                "options": {
+                    "shell": {
+                        "executable": "powershell.exe",
+                        "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command"]
+                    }
+                }
+            }
+        }
+    ]
+}
