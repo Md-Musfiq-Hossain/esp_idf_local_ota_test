@@ -25,7 +25,7 @@
     "--query-driver=**",
     "--compile-commands-dir=d:\\personal-project\\wifi_ota_monitor\\build"
   ],
-  "idf.currentSetup": "D:\\InsatalledApp\\.espressif\\v6.0.2\\esp-idf",
+  "idf.currentSetup": "/home/shunno/.espressif/v6.1.1/esp-idf",
   "idf.flashType": "UART",
-  "idf.port": "COM6"
+  "idf.port": "/dev/ttyUSB0"
 }

@@ -15,7 +15,7 @@
             "group": { "kind": "build", "isDefault": true },
             "problemMatcher": [],
 
-            "command": "if [ -f \"$HOME/.espressif/tools/activate_idf_v6.0.2.sh\" ]; then . \"$HOME/.espressif/tools/activate_idf_v6.0.2.sh\"; elif [ -f \"$HOME/esp/esp-idf/export.sh\" ]; then . \"$HOME/esp/esp-idf/export.sh\"; else echo 'ESP-IDF activation script not found'; exit 1; fi; idf.py build && curl -f --max-time 180 -H 'Expect:' -X POST --data-binary @build/wifi_ota_monitor.bin \"http://${input:espHost}/update\"",
+            "command": "ACT=$(ls -t \"$HOME\"/.espressif/tools/activate_idf_*.sh 2>/dev/null | head -n1); if [ -n \"$ACT\" ]; then . \"$ACT\"; else EXP=$(ls -t \"$HOME\"/.espressif/v*/esp-idf/export.sh 2>/dev/null | head -n1); if [ -z \"$EXP\" ]; then echo 'ESP-IDF activation script not found'; exit 1; fi; export IDF_TOOLS_PATH=\"$HOME/.espressif\"; . \"$EXP\"; fi; idf.py build && curl -f --max-time 180 -H 'Expect:' -X POST --data-binary @build/wifi_ota_monitor.bin \"http://${input:espHost}/update\"",
 
             "windows": {
                 "command": ". 'C:\\Espressif\\tools\\Microsoft.v6.0.2.PowerShell_profile.ps1'; idf.py build; if ($LASTEXITCODE -eq 0) { curl.exe -f --max-time 180 -H 'Expect:' -X POST --data-binary '@build/wifi_ota_monitor.bin' \"http://${input:espHost}/update\" } else { exit 1 }",
